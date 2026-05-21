@@ -28,7 +28,7 @@ loss:
   rollout_gamma: 0.97
   num_rollout_windows: 2
   horizon_start: 10
-  curriculum_steps: 3000
+  curriculum_steps: 1000
 
 eval:
   warmup_steps: 10
