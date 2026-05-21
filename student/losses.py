@@ -74,9 +74,9 @@ def compute_loss(model, batch: dict[str, torch.Tensor], normalizer, cfg: dict,) 
     one = one_step_delta_loss(model, states, actions, normalizer)
 
     # curriculum rollout horizon
-    max_horizon = int(loss_cfg.get("rollout_train_horizon", 30))
+    max_horizon = int(loss_cfg.get("rollout_train_horizon", 35))
     start_horizon = int(loss_cfg.get("horizon_start", 10))
-    curriculum_steps = int(loss_cfg.get("curriculum_steps", 3000))
+    curriculum_steps = int(loss_cfg.get("curriculum_steps", 1000))
     if _GLOBAL_STEP >= curriculum_steps:
         horizon = max_horizon
     else:
@@ -99,7 +99,7 @@ def compute_loss(model, batch: dict[str, torch.Tensor], normalizer, cfg: dict,) 
     
     total = (
         float(loss_cfg.get("one_step_weight", 1.0)) * one 
-        + float(loss_cfg.get("rollout_weight", 1.5)) * roll
+        + float(loss_cfg.get("rollout_weight", 1.0)) * roll
     )
     
     return total, {
