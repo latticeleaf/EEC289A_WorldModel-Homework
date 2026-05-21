@@ -1,7 +1,11 @@
 """Student world model.
 
-Students may replace this residual MLP with a GRU or another dynamics model,
-but the public interface must stay the same.
+- GRU hidden state to carry temporal context and preserve history of the rollout for each predicted step
+- LayerNorm after each encoder Linear layer stabilizes GRU training
+- 2-layer head lets model learn more complex relationship between internal memory and predicted state change 
+(mapping hidden -> delta)
+- delta_limit=2.0 soft-clamps via tanh, tighter than the baseline to prevent runaway predictions from feeding back and exploding
+
 """
 
 from __future__ import annotations
