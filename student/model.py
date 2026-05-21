@@ -35,7 +35,6 @@ class StudentWorldModel(nn.Module):
         for _ in range(int(num_layers)):
             layers += [
                 nn.Linear(in_dim, hidden_dim), 
-                nn.LayerNorm(hidden_dim),
                 nn.SiLU()
             ]
             in_dim = hidden_dim
