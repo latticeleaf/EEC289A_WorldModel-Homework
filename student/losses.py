@@ -1,13 +1,12 @@
-""""Student one-step plus rollout loss.
+"""Student one-step plus rollout loss."""
 
-Key changes from original:
-1. Exponential step-weighting (gamma): step 0 is weighted 1.0 and step h is weighted gamma^h to help with early errors in the rollout which compound into later ones which kills VPT.
-2. Huber (L1-smooth) term alongside MSE: MSE drives precision on easy cases and Huber prevents large outlier predictions from dominating gradients and destabilising GRU hidden state.
-"""
 from __future__ import annotations
+
 import torch
 import torch.nn.functional as F
+
 from .rollout import open_loop_rollout
+
 
 def one_step_delta_loss(model, states: torch.Tensor, actions: torch.Tensor, normalizer) -> torch.Tensor:
     obs = states[:, :-1].reshape(-1, states.shape[-1])
@@ -19,7 +18,8 @@ def one_step_delta_loss(model, states: torch.Tensor, actions: torch.Tensor, norm
     pred_norm, _ = model(obs_norm, act_norm, None)
     return F.mse_loss(pred_norm, target_norm)
 
-def rollout_loss(model, states: torch.Tensor, actions: torch.Tensor, normalizer, warmup_steps: int, horizon: int, gamma: float = 0.97) -> torch.Tensor:
+
+def rollout_loss(model, states: torch.Tensor, actions: torch.Tensor, normalizer, warmup_steps: int, horizon: int) -> torch.Tensor:
     # Train local open-loop stability at random positions, not only at the
     # beginning of each stored window.
     needed_states = int(warmup_steps) + int(horizon) + 1
@@ -39,27 +39,18 @@ def rollout_loss(model, states: torch.Tensor, actions: torch.Tensor, normalizer,
     targets = sub_states[:, warmup_steps + 1 : warmup_steps + 1 + horizon]
     pred_norm = normalizer.normalize_obs(preds)
     target_norm = normalizer.normalize_obs(targets)
-    # exponential step weighting
-    weights = torch.tensor(
-        [gamma ** h for h in range(int(horizon))],
-        dtype=pred_norm.dtype,
-        device=pred_norm.device,
-    ).view(1, -1, 1)
-    diff = pred_norm - target_norm
-    mse_loss = (weights * diff ** 2).mean()
-    huber_loss = (weights * diff.abs()).mean()
-    return mse_loss + 0.1 * huber_loss
+    return F.mse_loss(pred_norm, target_norm)
+
 
 def compute_loss(model, batch: dict[str, torch.Tensor], normalizer, cfg: dict):
     loss_cfg = cfg["loss"]
     states = batch["states"]
     actions = batch["actions"]
     one = one_step_delta_loss(model, states, actions, normalizer)
-    horizon = int(loss_cfg.get("rollout_train_horizon", 15))
-    warmup = int(cfg["eval"].get("warmup_steps", 10))
-    gamma = float(loss_cfg.get("rollout_gamma", 0.97))
-    roll = rollout_loss(model, states, actions, normalizer, warmup_steps=warmup, horizon=horizon, gamma=gamma)
-    total = float(loss_cfg.get("one_step_weight", 1.0)) * one + float(loss_cfg.get("rollout_weight", 1.0)) * roll
+    horizon = int(loss_cfg.get("rollout_train_horizon", 5))
+    warmup = int(cfg["eval"].get("warmup_steps", 5))
+    roll = rollout_loss(model, states, actions, normalizer, warmup_steps=warmup, horizon=horizon)
+    total = float(loss_cfg.get("one_step_weight", 1.0)) * one + float(loss_cfg.get("rollout_weight", 0.3)) * roll
     return total, {
         "loss/total": float(total.detach().cpu()),
         "loss/one_step": float(one.detach().cpu()),
