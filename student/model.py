@@ -21,7 +21,7 @@ class StudentWorldModel(nn.Module):
         hidden_dim: int = 256,
         num_layers: int = 3,
         use_gru: bool = True,
-        delta_limit: float = 2.0,
+        delta_limit: float = 3.0,
     ):
         super().__init__()
         self.use_gru = bool(use_gru)
