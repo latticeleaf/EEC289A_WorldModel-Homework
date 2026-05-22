@@ -22,7 +22,7 @@ training:
   checkpoint_mode: max
 
 loss:
-  one_step_weight: 1.0
+  one_step_weight: 1.5
   rollout_weight: 1.0
   rollout_train_horizon: 15
   rollout_gamma: 0.97
