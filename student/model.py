@@ -29,7 +29,7 @@ class StudentWorldModel(nn.Module):
         self.obs_dim = obs_dim
 
         #Encoder: maps (obs, act) -> feature vector
-        in_dim = obs_dim + act_dim
+        in_dim = obs_dim + act_dim + 2
         layers: list[nn.Module] = []
         for _ in range(int(num_layers)):
             layers += [
@@ -51,7 +51,11 @@ class StudentWorldModel(nn.Module):
         return torch.zeros(batch_size, self.gru.hidden_size, device=device)
 
     def forward(self, obs_norm: torch.Tensor, act_norm: torch.Tensor, hidden=None):
-        feat = self.encoder(torch.cat([obs_norm, act_norm], dim=-1))
+        # Add physics features: sin and cos of pol angle (dim 1)
+        angle = obs_norm[:, 1:2]
+        physics = torch.cat([torch.sin(angle), torch.cos(angle)], dim=-1)
+        x = torch.cat([obs_norm, act_norm, physics], dim=-1)
+        feat = self.encoder(x)
         if self.gru is not None:
             if hidden is None:
                 hidden = self.initial_hidden(obs_norm.shape[0], obs_norm.device)
