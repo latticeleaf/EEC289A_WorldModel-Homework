@@ -4,7 +4,7 @@ torch_num_threads: 1
 
 model:
   hidden_dim: 256
-  num_layers: 3
+  num_layers: 5
   use_gru: false
 
 training:
@@ -25,7 +25,6 @@ loss:
   one_step_weight: 1.0
   rollout_weight: 1.5
   rollout_train_horizon: 15
-  rollout_gamma: 0.97
 
 eval:
   warmup_steps: 10
