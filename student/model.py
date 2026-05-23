@@ -43,7 +43,7 @@ class StudentWorldModel(nn.Module):
         self.gru = nn.GRUCell(hidden_dim, hidden_dim) if self.use_gru else None
 
         # Prediction head uses two-layers
-        self.head = nn.Linear(hidden_dim, hidden_dim)
+        self.head = nn.Linear(hidden_dim, obs_dim)
             
     def initial_hidden(self, batch_size: int, device: torch.device):
         if not self.use_gru:
