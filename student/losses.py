@@ -39,7 +39,14 @@ def rollout_loss(model, states: torch.Tensor, actions: torch.Tensor, normalizer,
     targets = sub_states[:, warmup_steps + 1 : warmup_steps + 1 + horizon]
     pred_norm = normalizer.normalize_obs(preds)
     target_norm = normalizer.normalize_obs(targets)
-    return F.mse_loss(pred_norm, target_norm)
+    gamma = 0.97
+    weights = torch.tensor(
+        [gamma ** h for h in range(int(horizon))],
+        dtype=pred_norm.dtype,
+        device=pred_norm.device,
+    ).view(1, -1, 1)
+    diff = pred_norm - target_norm
+    return (weights * diff ** 2).mean()
 
 
 def compute_loss(model, batch: dict[str, torch.Tensor], normalizer, cfg: dict):
