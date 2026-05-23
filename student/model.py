@@ -28,7 +28,7 @@ class StudentWorldModel(nn.Module):
         obs_dim: int = 4,
         act_dim: int = 1,
         hidden_dim: int = 256,
-        num_layers: int = 3,
+        num_layers: int = 4,
         use_gru: bool = False,
         delta_limit: float = 3.0,
     ):
