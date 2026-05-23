@@ -12,7 +12,16 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-
+class ResidualBlock(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.SiLU(),
+        )
+    def forward(self, x):
+        return x + self.block(x)
+        
 class StudentWorldModel(nn.Module):
     def __init__(
         self,
@@ -30,13 +39,9 @@ class StudentWorldModel(nn.Module):
 
         #Encoder: maps (obs, act) -> feature vector
         in_dim = obs_dim + act_dim + 2
-        layers: list[nn.Module] = []
-        for _ in range(int(num_layers)):
-            layers += [
-                nn.Linear(in_dim, hidden_dim), 
-                nn.SiLU()
-            ]
-            in_dim = hidden_dim
+        layers: list[nn.Module] = [nn.Linear(in_dim, hidden_dim), nn.SiLU()]
+        for _ in range(int(num_layers) - 1):
+            layers.append(ResidualBlock(hidden_dim))
         self.encoder = nn.Sequential(*layers)
 
         # Recurrent core
