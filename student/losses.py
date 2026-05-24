@@ -1,4 +1,6 @@
-"""Student one-step plus rollout loss."""
+"""Student one-step plus rollout loss.
+- added expontential weighting before turning GRU back to true, so not sure if its necessary, neutral or positive/negative
+"""
 
 from __future__ import annotations
 
