@@ -74,6 +74,5 @@ class StudentWorldModel(nn.Module):
             hidden = self.gru(feat, hidden)
             feat = hidden
         raw_delta = self.head(feat)
-        # Soft clamp: tanh gradients stay alive near boundary due to tanh
-        delta = self.delta_limit * torch.tanh(raw_delta / self.delta_limit)
         return delta, hidden
+
