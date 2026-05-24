@@ -64,7 +64,7 @@ class StudentWorldModel(nn.Module):
             torch.sin(angle),
             torch.cos(angle),
             angle * angular_vel,
-            angle ** 2,
+            cart_vel * angular_vel,
         ], dim=-1)
         x = torch.cat([obs_norm, act_norm, physics], dim=-1)
         feat = self.encoder(x)
