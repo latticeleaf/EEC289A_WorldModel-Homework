@@ -1,9 +1,7 @@
 """Student world model.
 
 - GRU hidden state to carry temporal context and preserve history of the rollout for each predicted step
-- 2-layer head lets model learn more complex relationship between internal memory and predicted state change 
-(mapping hidden -> delta)
-- delta_limit=2.0 soft-clamps via tanh, tighter than the baseline to prevent runaway predictions from feeding back and exploding
+- removed soft clamp
 
 """
 
