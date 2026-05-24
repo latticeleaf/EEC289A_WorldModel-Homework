@@ -38,7 +38,7 @@ class StudentWorldModel(nn.Module):
         self.obs_dim = obs_dim
 
         #Encoder: maps (obs, act) -> feature vector
-        in_dim = obs_dim + act_dim + 3
+        in_dim = obs_dim + act_dim + 4
         layers: list[nn.Module] = [nn.Linear(in_dim, hidden_dim), nn.SiLU()]
         for _ in range(int(num_layers) - 1):
             layers.append(ResidualBlock(hidden_dim))
@@ -63,6 +63,7 @@ class StudentWorldModel(nn.Module):
             torch.sin(angle),
             torch.cos(angle),
             angle * angular_vel,
+            cart_vel * angular_vel,
         ], dim=-1)
         x = torch.cat([obs_norm, act_norm, physics], dim=-1)
         feat = self.encoder(x)
