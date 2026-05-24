@@ -59,6 +59,7 @@ class StudentWorldModel(nn.Module):
         # Add physics features: sin and cos of pol angle (dim 1)
         angle = obs_norm[:, 1:2]
         angular_vel = obs_norm[:, 3:4]
+        cart_vel = obs_norm[:, 2:3]
         physics = torch.cat([
             torch.sin(angle),
             torch.cos(angle),
