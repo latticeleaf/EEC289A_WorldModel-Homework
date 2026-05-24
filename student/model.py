@@ -74,5 +74,5 @@ class StudentWorldModel(nn.Module):
             hidden = self.gru(feat, hidden)
             feat = hidden
         raw_delta = self.head(feat)
-        return delta, hidden
+        return raw_delta, hidden
 
