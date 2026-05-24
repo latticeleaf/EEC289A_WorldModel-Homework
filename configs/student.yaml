@@ -4,7 +4,7 @@ torch_num_threads: 1
 
 model:
   hidden_dim: 256
-  num_layers: 4
+  num_layers: 5
   use_gru: true
 
 
